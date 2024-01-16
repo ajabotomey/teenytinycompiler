@@ -105,7 +105,7 @@ class Lexer:
             startPos = self.curPos
             while self.peek().isdigit():
                 self.nextChar()
-                
+
             if self.peek() == '.': # Decimal
                 self.nextChar()
 
@@ -118,6 +118,19 @@ class Lexer:
             
             tokText = self.source[startPos: self.curPos + 1] # Get substring
             token = Token(tokText, TokenType.NUMBER)
+        elif self.curChar.isalpha():
+            # Leading character is a letter. Either identifier or keyword
+            startPos = self.curPos
+            while self.peek().isalpha():
+                self.nextChar()
+
+            # Check if token is in keyword list
+            tokText = self.source[startPos: self.curPos + 1]
+            keyword = Token.checkIfKeyword(tokText)
+            if keyword == None:
+                token = Token(tokText, TokenType.IDENT)
+            else:
+                token = Token(tokText, keyword)
         elif self.curChar == '\n':
             token = Token(self.curChar, TokenType.NEWLINE)
         elif self.curChar == '\0': 
@@ -133,6 +146,14 @@ class Token:
     def __init__(self, tokenText, tokenKind):
         self.text = tokenText; # The token's actual text. Used for identifiers, strings, and numbers.
         self.kind = tokenKind; # The TokenType that this token is classified as.
+
+    @staticmethod
+    def checkIfKeyword(tokenText):
+        for kind in TokenType:
+            # Relies on all keyword values being 1XX
+            if kind.name == tokenText and kind.value >= 100 and kind.value < 200:
+                return kind
+        return None
 
 class TokenType(enum.Enum):
     EOF = -1
