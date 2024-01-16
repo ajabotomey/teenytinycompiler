@@ -120,7 +120,11 @@ class Parser:
             self.emitter.emitLine("srand(time(0));")
             self.emitter.emitLine("int " + self.curToken.text + " = rand() % 100 + 1;")
             self.match(TokenType.IDENT)
-
+        elif self.checkToken(TokenType.INT):
+            print("STATEMENT-INT")
+            self.nextToken()
+            self.emitter.emitLine("int " + self.curToken.text + " = (int)" + self.curToken.text + ";")
+            self.match(TokenType.IDENT)
         elif self.checkToken(TokenType.WHILE):
             print("STATEMENT-WHILE")
             self.nextToken()

@@ -6,3 +6,4 @@ IF a > b THEN
 ENDIF
 
 RND w
+INT b

@@ -11,5 +11,6 @@ printf("a is bigger\n");
 }
 srand(time(0));
 int w = rand() % 100 + 1;
+int b = (int)b;
 return 0;
 }
