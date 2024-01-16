@@ -125,6 +125,11 @@ class Parser:
             self.nextToken()
             self.emitter.emitLine("int " + self.curToken.text + " = (int)" + self.curToken.text + ";")
             self.match(TokenType.IDENT)
+        elif self.checkToken(TokenType.ABS):
+            print("STATEMENT-ABS")
+            self.nextToken()
+            self.emitter.emitLine("int " + self.curToken.text + " = abs(" + self.curToken.text + ");")
+            self.match(TokenType.IDENT)
         elif self.checkToken(TokenType.WHILE):
             print("STATEMENT-WHILE")
             self.nextToken()

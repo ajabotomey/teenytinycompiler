@@ -7,3 +7,4 @@ ENDIF
 
 RND w
 INT b
+ABS a
