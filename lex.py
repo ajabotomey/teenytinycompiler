@@ -99,6 +99,25 @@ class Lexer:
             
             tokText = self.source[startPos: self.curPos] # Get substring
             token = Token(tokText, TokenType.STRING)
+        elif self.curChar.isdigit():
+            # Leading character is a digit, so this must be a number
+            # Get all consecutive digits and decimal if there is one
+            startPos = self.curPos
+            while self.peek().isdigit():
+                self.nextChar()
+                
+            if self.peek() == '.': # Decimal
+                self.nextChar()
+
+                # must have at least one digit after decimal
+                if not self.peek().isdigit():
+                    self.abort("Illegal character in number.")
+
+                while self.peek().isdigit():
+                    self.nextChar()
+            
+            tokText = self.source[startPos: self.curPos + 1] # Get substring
+            token = Token(tokText, TokenType.NUMBER)
         elif self.curChar == '\n':
             token = Token(self.curChar, TokenType.NEWLINE)
         elif self.curChar == '\0': 
