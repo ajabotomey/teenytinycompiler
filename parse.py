@@ -44,6 +44,7 @@ class Parser:
         self.emitter.headerLine("#include <stdio.h>")
         self.emitter.headerLine("#include <time.h>")
         self.emitter.headerLine("#include <stdlib.h>")
+        self.emitter.headerLine(" ")
         self.emitter.headerLine("int main(void){")
 
         while self.checkToken(TokenType.NEWLINE):
@@ -53,7 +54,7 @@ class Parser:
         while not self.checkToken((TokenType.EOF)):
             self.statement()
 
-        self.emitter.emitLine("return 0;")
+        self.emitter.emitLine("\treturn 0;")
         self.emitter.emitLine("}")
 
         for label in self.labelsGotoed:
@@ -62,6 +63,7 @@ class Parser:
     
     def statement(self):
         # Check the first token to see what kind of statement this is
+        self.emitter.emit("\t")
 
         # "PRINT" (expression | string)
         if self.checkToken(TokenType.PRINT):
@@ -87,10 +89,11 @@ class Parser:
 
             # Zero or more statements in the body
             while not self.checkToken(TokenType.ENDIF):
+                self.emitter.emit("\t")
                 self.statement()
 
             self.match(TokenType.ENDIF)
-            self.emitter.emitLine("}")
+            self.emitter.emitLine("\t}")
         # elif self.checkToken(TokenType.ELSE):
         #     print("STATEMENT-ELSE")
         #     self.nextToken()
@@ -118,7 +121,7 @@ class Parser:
             print("STATEMENT-RND")
             self.nextToken()
             self.emitter.emitLine("srand(time(0));")
-            self.emitter.emitLine("int " + self.curToken.text + " = rand() % 100 + 1;")
+            self.emitter.emitLine("\tint " + self.curToken.text + " = rand() % 100 + 1;")
             self.match(TokenType.IDENT)
         elif self.checkToken(TokenType.INT):
             print("STATEMENT-INT")
@@ -141,10 +144,11 @@ class Parser:
             self.emitter.emitLine(") {")
 
             while not self.checkToken(TokenType.ENDWHILE):
+                self.emitter.emit("\t")
                 self.statement()
 
             self.match(TokenType.ENDWHILE)
-            self.emitter.emitLine("}")
+            self.emitter.emitLine("\t}")
         elif self.checkToken(TokenType.LABEL):
             print("STATEMENT-LABEL")
             self.nextToken()
@@ -169,7 +173,7 @@ class Parser:
             # Check if ident exists
             if self.curToken.text not in self.symbols:
                 self.symbols.add(self.curToken.text)
-                self.emitter.headerLine("float " + self.curToken.text + ";")
+                self.emitter.headerLine("\tfloat " + self.curToken.text + ";")
 
             self.emitter.emit(self.curToken.text + " = ")
             self.match(TokenType.IDENT)
@@ -199,10 +203,12 @@ class Parser:
         print("COMPARISON")
 
         self.expression()
+        self.emitter.emit(" ")
         # Must have at least one comparison operator and another expression
         if self.isComparisonOperator():
             self.emitter.emit(self.curToken.text)
             self.nextToken()
+            self.emitter.emit(" ")
             self.expression()
         else:
             self.abort("Expected comparison operator at " + self.curToken.text)
