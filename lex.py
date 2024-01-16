@@ -20,7 +20,7 @@ class Lexer:
     def peek(self):
         if self.curPos + 1 >= len(self.source):
             return '\0'
-        return self.source[self.curPos]
+        return self.source[self.curPos + 1]
 
     # Invalid token found, print error message and exit
     def abort(self, message):
@@ -50,6 +50,38 @@ class Lexer:
             token = Token(self.curChar, TokenType.ASTERISK)
         elif self.curChar == '/':
             token = Token(self.curChar, TokenType.SLASH)
+        elif self.curChar == '=':
+            # Check whether = or ==
+            if self.peek() == '=':
+                lastChar = self.curChar
+                self.nextChar()
+                token = Token(lastChar + self.curChar, TokenType.EQEQ)
+            else:
+                token = Token(self.curChar, TokenType.EQ)
+        elif self.curChar == '>':
+            # check for > or >=
+            if self.peek() == '=':
+                lastChar = self.curChar
+                self.nextChar()
+                token = Token(lastChar + self.curChar, TokenType.GTEQ)
+            else:
+                token = Token(self.curChar, TokenType.GT)
+        elif self.curChar == '<':
+            # check for > or >=
+            if self.peek() == '=':
+                lastChar = self.curChar
+                self.nextChar()
+                token = Token(lastChar + self.curChar, TokenType.LTEQ)
+            else:
+                token = Token(self.curChar, TokenType.LT)
+        elif self.curChar == '!':
+            # check for > or >=
+            if self.peek() == '=':
+                lastChar = self.curChar
+                self.nextChar()
+                token = Token(lastChar + self.curChar, TokenType.NOTEQ)
+            else:
+                self.abort("Expected !=, got !" + self.peek())
         elif self.curChar == '\n':
             token = Token(self.curChar, TokenType.NEWLINE)
         elif self.curChar == '\0': 
