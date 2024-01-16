@@ -12,6 +12,7 @@ class Parser:
 
         self.curToken = None
         self.peekToken = None
+        self.curLine = 1
         self.nextToken()
         self.nextToken()
 
@@ -41,6 +42,8 @@ class Parser:
     # Production rules
     def program(self):
         self.emitter.headerLine("#include <stdio.h>")
+        self.emitter.headerLine("#include <time.h>")
+        self.emitter.headerLine("#include <stdlib.h>")
         self.emitter.headerLine("int main(void){")
 
         while self.checkToken(TokenType.NEWLINE):
@@ -88,6 +91,36 @@ class Parser:
 
             self.match(TokenType.ENDIF)
             self.emitter.emitLine("}")
+        # elif self.checkToken(TokenType.ELSE):
+        #     print("STATEMENT-ELSE")
+        #     self.nextToken()
+        #     self.newline()
+
+        #     # Zero or more statements in the body
+        #     while not self.checkToken(TokenType.ENDIF):
+        #         self.statement()
+
+        #     self.match(TokenType.ENDIF)
+        # elif self.checkToken(TokenType.ELSEIF):
+        #     print("STATEMENT-ELSEIF")
+        #     self.nextToken()
+        #     self.comparison()
+
+        #     self.match(TokenType.THEN)
+        #     self.newline()
+
+        #     # Zero or more statements in the body
+        #     while not self.checkToken(TokenType.ENDIF):
+        #         self.statement()
+
+        #     self.match(TokenType.ENDIF)
+        elif self.checkToken(TokenType.RND):
+            print("STATEMENT-RND")
+            self.nextToken()
+            self.emitter.emitLine("srand(time(0));")
+            self.emitter.emitLine("int " + self.curToken.text + " = rand() % 100 + 1;")
+            self.match(TokenType.IDENT)
+
         elif self.checkToken(TokenType.WHILE):
             print("STATEMENT-WHILE")
             self.nextToken()
@@ -149,7 +182,7 @@ class Parser:
             self.emitter.emitLine("}")
             self.match(TokenType.IDENT)
         else:
-            self.abort("Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ")")
+            self.abort("Invalid statement at " + self.curToken.text + " (" + self.curToken.kind.name + ") at line " + str(self.curLine))
 
         self.newline()
 
@@ -220,6 +253,7 @@ class Parser:
 
         # Require at least one new line
         self.match(TokenType.NEWLINE)
+        self.curLine += 1
 
         # allow extras
         while self.checkToken(TokenType.NEWLINE):
